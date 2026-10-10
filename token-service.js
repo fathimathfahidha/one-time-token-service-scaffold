@@ -11,14 +11,7 @@ export async function issueToken(payload, ttlSeconds) {
   const tokenId = crypto.randomBytes(16).toString("hex");
   const value = JSON.stringify(payload);
 
-  await redis.set(
-    keyFor(tokenId),
-    value,
-    "EX",
-    ttlSeconds,
-    "NX"
-  );
-
+  await redis.set(keyFor(tokenId), value, "EX", ttlSeconds, "NX");
   return tokenId;
 }
 
