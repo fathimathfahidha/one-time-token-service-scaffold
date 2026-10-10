@@ -5,16 +5,8 @@ import "dotenv/config";
 
 const redis = new Redis(process.env.REDIS_URL);
 
-// Helper: build the Redis key for a token id.
 const keyFor = (id) => "token:" + id;
 
-/**
- * Issue a single-use token that expires after ttlSeconds.
- *
- * @param {object} payload
- * @param {number} ttlSeconds
- * @returns {Promise<string>}
- */
 export async function issueToken(payload, ttlSeconds) {
   const tokenId = crypto.randomBytes(16).toString("hex");
   const value = JSON.stringify(payload);
@@ -30,12 +22,6 @@ export async function issueToken(payload, ttlSeconds) {
   return tokenId;
 }
 
-/**
- * Consume a token exactly once.
- *
- * @param {string} tokenId
- * @returns {Promise<{ ok: true, payload: object } | { ok: false, reason: string }>}
- */
 export async function consumeToken(tokenId) {
   const value = await redis.getdel(keyFor(tokenId));
 
@@ -43,13 +29,9 @@ export async function consumeToken(tokenId) {
     return { ok: false, reason: "invalid" };
   }
 
-  return {
-    ok: true,
-    payload: JSON.parse(value)
-  };
+  return { ok: true, payload: JSON.parse(value) };
 }
 
-// Allow other files to close the connection cleanly.
 export function closeRedis() {
   return redis.quit();
 }

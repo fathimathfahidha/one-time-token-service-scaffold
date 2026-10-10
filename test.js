@@ -8,11 +8,9 @@ import {
 
 async function main() {
   try {
-    // 1. Issue one token.
     const id = await issueToken({ userId: 42 }, 60);
     console.log("issued token:", id);
 
-    // 2. Fire five consumers concurrently.
     const results = await Promise.all([
       consumeToken(id),
       consumeToken(id),
@@ -21,16 +19,12 @@ async function main() {
       consumeToken(id)
     ]);
 
-    // 3. Count successful consumers.
-    const winners = results.filter((r) => r.ok).length;
+    const winners = results.filter((result) => result.ok).length;
     console.log("winners:", winners);
 
-    // 4. Assert exactly one consumer wins.
     assert.equal(winners, 1, "SINGLE-USE VIOLATED! winners = " + winners);
-
     console.log("PASS: token was single-use.");
   } finally {
-    // Close the Redis connection.
     await closeRedis();
   }
 }
